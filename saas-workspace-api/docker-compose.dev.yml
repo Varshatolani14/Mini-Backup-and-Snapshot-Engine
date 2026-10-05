@@ -1,0 +1,29 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────
+# docker-compose.dev.yml — Development overrides
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Overrides the production image with a dev-friendly setup:
+#   - Mounts source code for hot-reload via nodemon
+#   - Uses development environment
+#   - Exposes Prisma Studio port
+# ─────────────────────────────────────────────────────────────
+
+services:
+  api:
+    build:
+      target: deps      # Stop at the deps stage (no production copy)
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    environment:
+      NODE_ENV: development
+      LOG_PRETTY: 'true'
+      LOG_LEVEL: debug
+    volumes:
+      - .:/app
+      - /app/node_modules  # Prevent host node_modules from overriding container's
+    ports:
+      - '3000:3000'
+      - '5555:5555'  # Prisma Studio
